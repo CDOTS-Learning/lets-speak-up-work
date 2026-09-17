@@ -238,7 +238,7 @@ export default function Home() {
               <p>{t("home.rule4")}</p>             
             </div>
 <div className="flex gap-3">
-              <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-red/10 text-primary font-semibold text-xs">
+              <span className="flex-shrink-0 flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-primary/10 text-primary font-semibold text-xs whitespace-nowrap">
                 {t("home.noteLabel")}
               </span>
               <p>{t("home.note")}</p>             
