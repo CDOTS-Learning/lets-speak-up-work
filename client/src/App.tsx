@@ -8,6 +8,7 @@ import Game from "@/pages/game";
 import NotFound from "@/pages/not-found";
 
 import Facilitator from "./pages/facilitator";
+import { LangProvider } from "@/i18n";
 
 const Routes = () => (
   <Switch>
@@ -30,10 +31,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <LangProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </LangProvider>
     </QueryClientProvider>
   );
 }

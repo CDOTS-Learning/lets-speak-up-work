@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { PlayerList } from "@/components/player-list";
 import { GameCard } from "@/components/game-card";
+import { useI18n, LangToggle } from "@/i18n";
 
 export default function Facilitator() {
   const [, params] = useRoute("/facilitator/:roomCode");
   const roomCode = params?.roomCode ?? "";
 
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!roomCode) return;
@@ -35,23 +37,26 @@ export default function Facilitator() {
   }, [roomCode]);
 
   if (!gameState) {
-    return <div className="p-6 text-center">Connecting to game...</div>;
+    return <div className="p-6 text-center">{t("fac.connecting")}</div>;
   }
 
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <header className="border-b pb-4">
-        <h1 className="text-2xl font-bold">Facilitator View</h1>
-        <p className="text-muted-foreground">Room: {roomCode}</p>
-        <p className="text-muted-foreground">Round: {gameState.round}</p>
-        <Badge variant="outline">Phase: {gameState.phase}</Badge>
+      <header className="border-b pb-4 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">{t("fac.title")}</h1>
+          <p className="text-muted-foreground">{t("fac.room")} {roomCode}</p>
+          <p className="text-muted-foreground">{t("fac.round")} {gameState.round}</p>
+          <Badge variant="outline">{t("fac.phase")} {gameState.phase}</Badge>
+        </div>
+        <LangToggle />
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Players</CardTitle>
+          <CardTitle>{t("fac.players")}</CardTitle>
         </CardHeader>
         <CardContent>
           <PlayerList
@@ -65,7 +70,7 @@ export default function Facilitator() {
       {gameState.selectedCards && (
         <Card>
           <CardHeader>
-            <CardTitle>Selected Cards</CardTitle>
+            <CardTitle>{t("fac.selected")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4 flex-wrap">
@@ -75,7 +80,7 @@ export default function Facilitator() {
             </div>
             <Separator />
             <p className="text-sm text-muted-foreground">
-              Ratings submitted: {gameState.ratings.length} / {gameState.players.length}
+              {t("fac.ratings", { count: gameState.ratings.length, total: gameState.players.length })}
             </p>
           </CardContent>
         </Card>

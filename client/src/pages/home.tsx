@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Users, Play, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getSocket, connectSocket } from "@/lib/socket";
+import { useI18n, LangToggle } from "@/i18n";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -22,13 +23,14 @@ export default function Home() {
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const { toast } = useToast();
+  const { t, tServer } = useI18n();
 
   const handleCreateRoom = async () => {
     if (!playerName.trim()) {
       toast({
         variant: "destructive",
-        title: "Name required",
-        description: "Please enter your name to create a game room.",
+        title: t("toast.nameReqTitle"),
+        description: t("toast.nameReqCreate"),
       });
       return;
     }
@@ -51,16 +53,16 @@ export default function Home() {
     if (!playerName.trim()) {
       toast({
         variant: "destructive",
-        title: "Name required",
-        description: "Please enter your name to join a game.",
+        title: t("toast.nameReqTitle"),
+        description: t("toast.nameReqJoin"),
       });
       return;
     }
     if (!roomCode.trim()) {
       toast({
         variant: "destructive",
-        title: "Room code required",
-        description: "Please enter a room code to join.",
+        title: t("toast.codeReqTitle"),
+        description: t("toast.codeReq"),
       });
       return;
     }
@@ -85,8 +87,8 @@ export default function Home() {
         } else {
           toast({
             variant: "destructive",
-            title: "Failed to join room",
-            description: error ?? "Unable to join the game room. Please try again.",
+            title: t("toast.joinFailTitle"),
+            description: error ? tServer(error) : t("toast.joinFail"),
           });
         }
       }
@@ -96,18 +98,19 @@ export default function Home() {
   return (
 
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <div className="w-full max-w-2xl space-y-8">
+      <div className="w-full max-w-2xl space-y-8 relative">
+        <div className="absolute right-0 -top-2 md:-top-4"><LangToggle /></div>
         {/* Header */}
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Sparkles className="w-10 h-10 text-primary" />
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Let's Speak Up
+              {t("app.title")}
             </h1>
             <Sparkles className="w-10 h-10 text-primary" />
           </div>
           <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-            A Demo Version for Facilitators!
+            {t("home.subtitle")}
           </p>
         </div>
 
@@ -116,15 +119,15 @@ export default function Home() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="w-5 h-5" />
-              Your Name
+              {t("home.yourName")}
             </CardTitle>
-            <CardDescription>Enter your name to start playing</CardDescription>
+            <CardDescription>{t("home.yourNameDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Input
               data-testid="input-player-name"
               type="text"
-              placeholder="Enter your name..."
+              placeholder={t("home.namePlaceholder")}
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               onKeyDown={(e) => {
@@ -145,9 +148,9 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Play className="w-5 h-5 text-primary" />
-                Create New Game
+                {t("home.create")}
               </CardTitle>
-              <CardDescription>Start a new game room; 3–6 players</CardDescription>
+              <CardDescription>{t("home.createDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <Button
@@ -157,7 +160,7 @@ export default function Home() {
                 className="w-full"
                 size="lg"
               >
-                {isCreating ? "Creating..." : "Create Room"}
+                {isCreating ? t("home.creating") : t("home.createBtn")}
               </Button>
             </CardContent>
           </Card>
@@ -167,18 +170,18 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
-                Join Existing Game
+                {t("home.join")}
               </CardTitle>
-              <CardDescription>Enter a room code to join a game</CardDescription>
+              <CardDescription>{t("home.joinDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="room-code">Room Code</Label>
+                <Label htmlFor="room-code">{t("home.roomCode")}</Label>
                 <Input
                   data-testid="input-room-code"
                   id="room-code"
                   type="text"
-                  placeholder="e.g., CD0T51"
+                  placeholder={t("home.roomCodePlaceholder")}
                   value={roomCode}
                   onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                   onKeyDown={(e) => {
@@ -198,7 +201,7 @@ export default function Home() {
                 size="lg"
                 variant="secondary"
               >
-                {isJoining ? "Joining..." : "Join Room"}
+                {isJoining ? t("home.joining") : t("home.joinBtn")}
               </Button>
             </CardContent>
           </Card>
@@ -207,38 +210,38 @@ export default function Home() {
         {/* Game Rules */}
         <Card className="border">
           <CardHeader>
-            <CardTitle className="text-lg">How to Play</CardTitle>
+            <CardTitle className="text-lg">{t("home.howTo")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <div className="flex gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-xs">
                 1
               </span>
-              <p>Each player starts with 6 cards: 1 Role Card, 1 Context Card and 4 Statement Cards.</p>
+              <p>{t("home.rule1")}</p>
             </div>
             <div className="flex gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-xs">
                 2
               </span>
-              <p>On your turn (Active Player), select one card from each deck to create a set and secretly rate it as "Promotes" if you think it promotes psychological safety or "Hinders" if you think it hinders psychological safety.</p>
+              <p>{t("home.rule2")}</p>
             </div>
             <div className="flex gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-xs">
                 3
               </span>
-              <p>The other players will secretly rate the Active Player's card set.</p>
+              <p>{t("home.rule3")}</p>
             </div>
             <div className="flex gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-semibold text-xs">
                 4
               </span>
-              <p>After all ratings are submitted, see who matched the Active Player's rating!</p>             
+              <p>{t("home.rule4")}</p>             
             </div>
 <div className="flex gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-red/10 text-primary font-semibold text-xs">
-                NOTE:
+                {t("home.noteLabel")}
               </span>
-              <p>This online version is a simplified adaptation of the Let's Speak Up card game. It is intended solely for training purposes and must be used exclusively during a facilitated training session.</p>             
+              <p>{t("home.note")}</p>             
             </div>
           </CardContent>
         </Card>

@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Crown, User, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 interface PlayerListProps {
   players: Player[];
@@ -11,6 +12,7 @@ interface PlayerListProps {
 }
 
 export function PlayerList({ players, currentPlayerId, myPlayerId }: PlayerListProps) {
+  const { t } = useI18n();
   return (
     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       {players.map((player) => {
@@ -47,25 +49,25 @@ export function PlayerList({ players, currentPlayerId, myPlayerId }: PlayerListP
                   isCurrentTurn && "text-primary"
                 )}>
                   {player.name}
-                  {isMe && <span className="text-muted-foreground ml-1">(You)</span>}
+                  {isMe && <span className="text-muted-foreground ml-1">{t("pl.you")}</span>}
                 </p>
               </div>
               <div className="flex items-center gap-2 mt-1">
                 {isCurrentTurn && (
                   <Badge variant="default" className="text-xs gap-1">
                     <Crown className="w-3 h-3" />
-                    Active
+                    {t("pl.active")}
                   </Badge>
                 )}
                 {player.isConnected ? (
                   <Badge variant="outline" className="text-xs gap-1 bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    Online
+                    {t("pl.online")}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="text-xs gap-1 bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30">
                     <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                    Offline
+                    {t("pl.offline")}
                   </Badge>
                 )}
               </div>
@@ -80,7 +82,7 @@ export function PlayerList({ players, currentPlayerId, myPlayerId }: PlayerListP
                 </span>
               </div>
               <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                {(player.score ?? 0) === 1 ? "point" : "points"}
+                {(player.score ?? 0) === 1 ? t("pl.point") : t("pl.points")}
               </span>
             </div>
           </div>

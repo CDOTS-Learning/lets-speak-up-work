@@ -14,6 +14,7 @@ import { RatingPanel } from "@/components/rating-panel";
 import { ResultsPanel } from "@/components/results-panel";
 import { WaitingRoom } from "@/components/waiting-room";
 import { GameTimer } from "@/components/game-timer";
+import { useI18n, LangToggle } from "@/i18n";
 
 export default function Game() {
   const [, params] = useRoute("/game/:roomCode");
@@ -43,6 +44,7 @@ export default function Game() {
   const [selectedCards, setSelectedCards] = useState<{ deck1?: CardType; deck2?: CardType; deck3?: CardType }>({});
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t, tServer } = useI18n();
 
   useEffect(() => {
     if (!roomCode) {
@@ -55,11 +57,11 @@ export default function Game() {
 
     const onGameState = (state: GameState) => setGameState(state);
     const onError = (message: string) =>
-      toast({ variant: "destructive", title: "Error", description: message });
+      toast({ variant: "destructive", title: t("toast.error"), description: tServer(message) });
     const onPlayerJoined = (name: string) =>
-      toast({ title: "Player joined", description: `${name} has joined the game.` });
+      toast({ title: t("toast.joinedTitle"), description: t("toast.joined", { name }) });
     const onPlayerLeft = (name: string) =>
-      toast({ title: "Player left", description: `${name} has left the game.` });
+      toast({ title: t("toast.leftTitle"), description: t("toast.left", { name }) });
 
     socket.on("game_state", onGameState);
     socket.on("error", onError);
@@ -74,8 +76,8 @@ export default function Game() {
         if (!success) {
           toast({
             variant: "destructive",
-            title: "Failed to join room",
-            description: error ?? "Unknown error",
+            title: t("toast.joinFailTitle"),
+            description: error ? tServer(error) : t("toast.joinFail"),
           });
           setLocation("/");
         }
@@ -97,6 +99,7 @@ export default function Game() {
       socket.io.off("reconnect", doJoin);
       disconnectSocket();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomCode, playerName, isFacilitator, setLocation, toast]);
 
   // Persist a real (non-anonymous) name so future reconnects/reloads reuse it.
@@ -126,8 +129,8 @@ export default function Game() {
     navigator.clipboard.writeText(roomCode);
     setCopied(true);
     toast({
-      title: "Room code copied!",
-      description: "Share this code with your players/facilitator.",
+      title: t("toast.copiedTitle"),
+      description: t("toast.copied"),
     });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -146,8 +149,8 @@ export default function Game() {
     if (!selectedCards.deck1 || !selectedCards.deck2 || !selectedCards.deck3) {
       toast({
         variant: "destructive",
-        title: "Incomplete selection",
-        description: "Please select one card from each deck.",
+        title: t("toast.incompleteTitle"),
+        description: t("toast.incomplete"),
       });
       return;
     }
@@ -168,7 +171,7 @@ export default function Game() {
 
   const handleNextRound = () => {
     if (isFacilitator) {
-      toast({ title: "Observer mode", description: "Facilitators don’t advance rounds." });
+      toast({ title: t("toast.observerTitle"), description: t("toast.observer") });
       return;
     }
     getSocket().emit("next_round");
@@ -180,7 +183,7 @@ export default function Game() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Connecting to game...</p>
+          <p className="text-muted-foreground">{t("game.connecting")}</p>
         </div>
       </div>
     );
@@ -201,8 +204,8 @@ export default function Game() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div>
-                <h1 className="text-xl font-bold">Card Match {isFacilitator && <span className="text-xs text-muted-foreground">(Facilitator)</span>}</h1>
-                <p className="text-sm text-muted-foreground">Round {gameState.round}</p>
+                <h1 className="text-xl font-bold">{t("game.title")} {isFacilitator && <span className="text-xs text-muted-foreground">{t("game.facilitator")}</span>}</h1>
+                <p className="text-sm text-muted-foreground">{t("game.round", { n: gameState.round })}</p>
               </div>
             </div>
 
@@ -227,6 +230,7 @@ export default function Game() {
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   <span className="font-mono font-semibold">{roomCode}</span>
                 </Button>
+                <LangToggle />
               </div>
             </div>
           </div>
@@ -249,11 +253,11 @@ export default function Game() {
                 <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    Players
+                    {t("game.players")}
                   </span>
                   {currentPlayer && (
                     <Badge variant={isMyTurn ? "default" : "secondary"} className="text-sm">
-                      {isMyTurn ? "Your Turn" : `${currentPlayer.name}'s Turn`}
+                      {isMyTurn ? t("game.yourTurn") : t("game.turnOf", { name: currentPlayer.name })}
                     </Badge>
                   )}
                 </CardTitle>
@@ -271,13 +275,13 @@ export default function Game() {
             {gameState.phase === "selecting" && !isFacilitator && isMyTurn && gameState.activePlayerHand && (
               <Card className="border-2">
                 <CardHeader>
-                  <CardTitle>Select Your Cards</CardTitle>
-                  <p className="text-sm text-muted-foreground">Choose one card from each deck to create your set</p>
+                  <CardTitle>{t("sel.title")}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{t("sel.sub")}</p>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Deck 2: Role (First) */}
                   <DeckSection
-                    title="Role Card"
+                    title={t("sel.role")}
                     selected={!!selectedCards.deck2}
                     cards={gameState.activePlayerHand.deck2}
                     isSelected={(c) => selectedCards.deck2?.id === c.id}
@@ -286,7 +290,7 @@ export default function Game() {
                   <Separator />
                   {/* Deck 3: Context (Second) */}
                   <DeckSection
-                    title="Context Card"
+                    title={t("sel.context")}
                     selected={!!selectedCards.deck3}
                     cards={gameState.activePlayerHand.deck3}
                     isSelected={(c) => selectedCards.deck3?.id === c.id}
@@ -295,7 +299,7 @@ export default function Game() {
                   <Separator />
                   {/* Deck 1: Statement (Third) */}
                   <DeckSection
-                    title="Statement Cards"
+                    title={t("sel.statements")}
                     selected={!!selectedCards.deck1}
                     cards={gameState.activePlayerHand.deck1}
                     isSelected={(c) => selectedCards.deck1?.id === c.id}
@@ -305,7 +309,7 @@ export default function Game() {
                   <RatingPanel
                     onSubmit={handleSubmitCards}
                     disabled={!selectedCards.deck1 || !selectedCards.deck2 || !selectedCards.deck3}
-                    title="Rate your card set"
+                    title={t("sel.rate")}
                   />
                 </CardContent>
               </Card>
@@ -320,9 +324,9 @@ export default function Game() {
                       <Users className="w-8 h-8 text-primary" />
                     </div>
                     <div>
-                      <p className="text-lg font-semibold">Waiting for {currentPlayer?.name}...</p>
+                      <p className="text-lg font-semibold">{t("sel.waitingFor", { name: currentPlayer?.name ?? "" })}</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {currentPlayer?.name} is selecting their card set
+                        {t("sel.waitingSub", { name: currentPlayer?.name ?? "" })}
                       </p>
                     </div>
                   </div>
@@ -334,36 +338,34 @@ export default function Game() {
             {gameState.phase === "rating" && gameState.selectedCards && (
               <Card className="border-2">
                 <CardHeader>
-                  <CardTitle>{isMyTurn ? "Your Card Set" : `${currentPlayer?.name}'s Card Set`}</CardTitle>
+                  <CardTitle>{isMyTurn ? t("rate.yourSet") : t("rate.setOf", { name: currentPlayer?.name ?? "" })}</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    {isMyTurn
-                      ? "Waiting for others to rate your set..."
-                      : "Rate this card set - does it promote or hinder psychological safety?"}
+                    {isMyTurn ? t("rate.waitingOthers") : t("rate.prompt")}
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Display Selected Cards (Reordered: Role -> Context -> Statement) */}
                   <div className="flex gap-4 justify-center flex-wrap">
-                    <ShowCard label="Role" card={gameState.selectedCards.deck2Card} />
-                    <ShowCard label="Context" card={gameState.selectedCards.deck3Card} />
-                    <ShowCard label="Statement" card={gameState.selectedCards.deck1Card} />
+                    <ShowCard label={t("rate.role")} card={gameState.selectedCards.deck2Card} />
+                    <ShowCard label={t("rate.context")} card={gameState.selectedCards.deck3Card} />
+                    <ShowCard label={t("rate.statement")} card={gameState.selectedCards.deck1Card} />
                   </div>
 
                   {/* Observers do not rate */}
                   {!isFacilitator && !isMyTurn && !myRating && (
                     <>
                       <Separator />
-                      <RatingPanel onSubmit={handleSubmitRating} disabled={false} title="Submit your rating" />
+                      <RatingPanel onSubmit={handleSubmitRating} disabled={false} title={t("rate.submit")} />
                     </>
                   )}
 
                   {!isFacilitator && myRating && (
                     <div className="text-center py-4">
                       <Badge variant="outline" className="text-sm">
-                        You rated this as: <span>{myRating.rating === "promotes" ? "Promotes" : "Hinders"}</span>
+                        {t("rate.youRated")} <span>{myRating.rating === "promotes" ? t("rate.promotes") : t("rate.hinders")}</span>
                       </Badge>
                       <p className="text-sm text-muted-foreground mt-2">
-                        Waiting for other players... ({gameState.ratings.length}/{gameState.players.length})
+                        {t("rate.waitingPlayers", { count: gameState.ratings.length, total: gameState.players.length })}
                       </p>
                     </div>
                   )}
@@ -404,11 +406,12 @@ function DeckSection({
   isSelected: (c: CardType) => boolean;
   onClick: (c: CardType) => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{title}</Label>
-        {selected && <Badge variant="outline" className="text-xs">Selected</Badge>}
+        {selected && <Badge variant="outline" className="text-xs">{t("sel.selected")}</Badge>}
       </div>
       <div className="flex gap-3 flex-wrap">
         {cards.map((card) => (
@@ -420,10 +423,11 @@ function DeckSection({
 }
 
 function ShowCard({ label, card }: { label: string; card: CardType | null }) {
+  const { t } = useI18n();
   return (
     <div className="space-y-2">
       <Label className="text-xs uppercase tracking-wide text-muted-foreground">{label}</Label>
-      {card ? <GameCard card={card} isSelected={false} /> : <div className="text-sm text-muted-foreground">N/A</div>}
+      {card ? <GameCard card={card} isSelected={false} /> : <div className="text-sm text-muted-foreground">{t("rate.na")}</div>}
     </div>
   );
 }

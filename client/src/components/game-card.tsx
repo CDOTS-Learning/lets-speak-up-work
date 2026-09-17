@@ -1,5 +1,6 @@
 import type { Card } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 interface GameCardProps {
   card: Card;
@@ -8,6 +9,7 @@ interface GameCardProps {
 }
 
 export function GameCard({ card, isSelected, onClick }: GameCardProps) {
+  const { tCard } = useI18n();
   const deckColors = {
     1: "from-yellow-500/10 to-yellow-600/20 border-yellow-500/30",
     2: "from-orange-500/10 to-orange-600/20 border-orange-500/30",
@@ -49,7 +51,7 @@ export function GameCard({ card, isSelected, onClick }: GameCardProps) {
           "text-sm md:text-base font-medium text-center leading-snug w-full",
           deckTextColors[card.deckNumber as keyof typeof deckTextColors]
         )}>
-          {card.value}
+          {tCard(card.value)}
         </div>
       </div>
 

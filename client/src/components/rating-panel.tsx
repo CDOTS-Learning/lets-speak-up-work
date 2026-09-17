@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface RatingPanelProps {
   onSubmit: (rating: "promotes" | "hinders") => void;
@@ -8,6 +9,7 @@ interface RatingPanelProps {
 }
 
 export function RatingPanel({ onSubmit, disabled, title }: RatingPanelProps) {
+  const { t } = useI18n();
   return (
     <div className="space-y-4 text-center">
       <div className="font-semibold">{title}</div>
@@ -19,7 +21,7 @@ export function RatingPanel({ onSubmit, disabled, title }: RatingPanelProps) {
           className="gap-2 bg-green-600 text-white border-2 border-green-700"
         >
           <ThumbsUp className="w-4 h-4" />
-          Promotes
+          {t("rate.promotes")}
         </Button>
         <Button
           onClick={() => onSubmit("hinders")}
@@ -28,7 +30,7 @@ export function RatingPanel({ onSubmit, disabled, title }: RatingPanelProps) {
           className="gap-2 bg-red-600 text-white border-2 border-red-700"
         >
           <ThumbsDown className="w-4 h-4" />
-          Hinders
+          {t("rate.hinders")}
         </Button>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Users, Play } from "lucide-react";
 import { PlayerList } from "./player-list";
 import { getSocket } from "@/lib/socket";
+import { useI18n } from "@/i18n";
 
 interface WaitingRoomProps {
   gameState: GameState;
@@ -12,6 +13,7 @@ interface WaitingRoomProps {
 }
 
 export function WaitingRoom({ gameState, myPlayerId, roomCode }: WaitingRoomProps) {
+  const { t } = useI18n();
   const isHost = gameState.players[0]?.id === myPlayerId;
   const canStart = gameState.players.length >= 3 && gameState.players.length <= 6;
 
@@ -29,11 +31,11 @@ export function WaitingRoom({ gameState, myPlayerId, roomCode }: WaitingRoomProp
             <Users className="w-10 h-10 text-primary" />
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">Waiting Room</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">{t("lobby.title")}</h2>
             <p className="text-muted-foreground">
               {gameState.players.length < 3
-                ? "Waiting for more players to join..."
-                : `${gameState.players.length}/${gameState.maxPlayers} players ready`}
+                ? t("lobby.waitingMore")
+                : t("lobby.ready", { count: gameState.players.length, max: gameState.maxPlayers })}
             </p>
           </div>
           {isHost && canStart && (
@@ -44,17 +46,17 @@ export function WaitingRoom({ gameState, myPlayerId, roomCode }: WaitingRoomProp
               className="gap-2"
             >
               <Play className="w-5 h-5" />
-              Start Game
+              {t("lobby.start")}
             </Button>
           )}
           {isHost && !canStart && (
             <p className="text-sm text-muted-foreground">
-              Need 3–6 players to start
+              {t("lobby.need")}
             </p>
           )}
           {!isHost && (
             <p className="text-sm text-muted-foreground">
-              Waiting for the host to start the game...
+              {t("lobby.waitingHost")}
             </p>
           )}
         </CardContent>
@@ -65,7 +67,7 @@ export function WaitingRoom({ gameState, myPlayerId, roomCode }: WaitingRoomProp
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
-            Players ({gameState.players.length}/{gameState.maxPlayers})
+            {t("lobby.players", { count: gameState.players.length, max: gameState.maxPlayers })}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -79,18 +81,12 @@ export function WaitingRoom({ gameState, myPlayerId, roomCode }: WaitingRoomProp
       {/* Game Info */}
       <Card className="border">
         <CardHeader>
-          <CardTitle className="text-lg">Ready to Play?</CardTitle>
+          <CardTitle className="text-lg">{t("lobby.readyTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Each player will receive 6 cards: 1 Role Card, 1 Context Card and 4 Statement Cards.
-          </p>
-          <p>
-            On your turn (Active Player), select one card from each deck to create a set and secretly rate it as "Promotes" if you think it promotes psychological safety or "Hinders" if you think it hinders psychological safety.
-          </p>
-          <p>
-            The other players will secretly rate the Active Player's card set.
-          </p>
+          <p>{t("lobby.info")}</p>
+          <p>{t("home.rule2")}</p>
+          <p>{t("home.rule3")}</p>
         </CardContent>
       </Card>
     </div>

@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Check, X, ChevronRight } from "lucide-react";
 import { GameCard } from "./game-card";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 interface ResultsPanelProps {
   gameState: GameState;
@@ -26,13 +27,14 @@ function normalizeRating(r?: string) {
   return r;
 }
 
-function ratingLabel(r?: string) {
-  const n = normalizeRating(r);
-  return n === "promotes" ? "Promotes" : n === "hinders" ? "Hinders" : n ?? "";
-}
-
 export function ResultsPanel({ gameState, currentPlayer, myPlayerId, onNextRound }: ResultsPanelProps) {
+  const { t } = useI18n();
   const isMyTurn = currentPlayer?.id === myPlayerId;
+  const name = currentPlayer?.name ?? "";
+  const ratingLabel = (r?: string) => {
+    const n = normalizeRating(r);
+    return n === "promotes" ? t("rate.promotes") : n === "hinders" ? t("rate.hinders") : n ?? "";
+  };
 
   const activeLabel = ratingLabel(gameState.activePlayerRating);
 
@@ -46,16 +48,16 @@ export function ResultsPanel({ gameState, currentPlayer, myPlayerId, onNextRound
   return (
     <Card className="border-2">
       <CardHeader>
-        <CardTitle>Round Results</CardTitle>
+        <CardTitle>{t("res.title")}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          {currentPlayer?.name}'s rating: <strong>{activeLabel}</strong>
+          {t("res.rating", { name })} <strong>{activeLabel}</strong>
         </p>
         <p className="text-sm text-muted-foreground">
-          {currentPlayer?.name} earned{" "}
+          {t("res.earnedPrefix", { name })}{" "}
           <strong className="text-primary">
-            +{pointsThisRound} {pointsThisRound === 1 ? "point" : "points"}
+            +{pointsThisRound} {pointsThisRound === 1 ? t("pl.point") : t("pl.points")}
           </strong>{" "}
-          this round.
+          {t("res.earnedSuffix")}
         </p>
       </CardHeader>
 
@@ -64,24 +66,24 @@ export function ResultsPanel({ gameState, currentPlayer, myPlayerId, onNextRound
         {gameState.selectedCards && (
           <div className="space-y-3">
             <Label className="text-sm text-muted-foreground">
-              {currentPlayer?.name}'s selected card set:
+              {t("res.selectedSet", { name })}
             </Label>
             <div className="flex gap-4 justify-center flex-wrap">
               {/* 1. ROLE (Deck 2) */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Role</Label>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">{t("rate.role")}</Label>
                 <GameCard card={gameState.selectedCards.deck2Card} isSelected={false} />
               </div>
 
               {/* 2. CONTEXT (Deck 3) */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Context</Label>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">{t("rate.context")}</Label>
                 <GameCard card={gameState.selectedCards.deck3Card} isSelected={false} />
               </div>
 
               {/* 3. STATEMENT (Deck 1) */}
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Statement</Label>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">{t("rate.statement")}</Label>
                 <GameCard card={gameState.selectedCards.deck1Card} isSelected={false} />
               </div>
             </div>
@@ -90,7 +92,7 @@ export function ResultsPanel({ gameState, currentPlayer, myPlayerId, onNextRound
 
         {/* Ratings Grid */}
         <div className="space-y-3">
-          <Label className="text-sm font-semibold">Player Ratings:</Label>
+          <Label className="text-sm font-semibold">{t("res.ratings")}</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {gameState.players.map((player) => {
               const playerRating = gameState.ratings.find((r) => r.playerId === player.id);
@@ -114,14 +116,14 @@ export function ResultsPanel({ gameState, currentPlayer, myPlayerId, onNextRound
                     </Avatar>
                     <div className="flex flex-col">
                       <span className="font-medium">
-                        {player.name} {player.id === myPlayerId && <span className="text-muted-foreground">(You)</span>}
+                        {player.name} {player.id === myPlayerId && <span className="text-muted-foreground">{t("res.you")}</span>}
                       </span>
                       {playerRating ? (
                         <span className="text-xs text-muted-foreground">
                           {ratingLabel(playerRating.rating)}
                         </span>
                       ) : (
-                        <span className="text-xs text-muted-foreground">No rating</span>
+                        <span className="text-xs text-muted-foreground">{t("res.noRating")}</span>
                       )}
                     </div>
                   </div>
@@ -129,7 +131,7 @@ export function ResultsPanel({ gameState, currentPlayer, myPlayerId, onNextRound
                   {!isActivePlayer && playerRating && (
                     <Badge variant={matchesActive ? "default" : "secondary"} className="flex items-center gap-1">
                       {matchesActive ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                      {matchesActive ? "Match!" : "No match"}
+                      {matchesActive ? t("res.match") : t("res.noMatch")}
                     </Badge>
                   )}
                 </div>
@@ -142,13 +144,13 @@ export function ResultsPanel({ gameState, currentPlayer, myPlayerId, onNextRound
         {isMyTurn ? (
           <div className="text-right">
             <Button onClick={onNextRound} className="gap-1">
-              Next Round
+              {t("res.next")}
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Waiting for {currentPlayer?.name} to start the next round...
+            {t("res.waitingNext", { name })}
           </p>
         )}
       </CardContent>
