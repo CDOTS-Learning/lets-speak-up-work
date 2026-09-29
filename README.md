@@ -6,8 +6,8 @@ Context and a Statement card, acts the line out, and everyone rates whether it
 **promotes** or **hinders** psychological safety. Points go to the active player
 for every teammate who read their intention correctly.
 
-- **Live:** https://lets-speak-up-work.onrender.com
-- **Directly in French:** https://lets-speak-up-work.onrender.com/?lang=fr
+- **Live:** https://lets-speak-up-work-1.onrender.com
+- **Directly in French:** https://lets-speak-up-work-1.onrender.com/?lang=fr
 - Meant for facilitated training sessions only — the group plays it alongside a
   video call, where the acting actually happens.
 
@@ -74,8 +74,12 @@ Render Web Service, runtime **Node**:
 - No environment variables, no database.
 
 Every push to `main` triggers a new deployment automatically (about 3 minutes).
-See `RENDER-SETUP.md` in this repo — the hosting still needs to be moved into
-the team's own account.
+The service runs on the team's own Render account — see `RENDER-SETUP.md` for
+how it is set up and what to do when a deployment misbehaves.
+
+> **An older copy may still answer at https://lets-speak-up-work.onrender.com.**
+> That one belongs to the previous maintainer's personal account, receives no
+> updates and will disappear. Always share the link at the top of this page.
 
 ## Where this code comes from
 
@@ -86,12 +90,17 @@ runs at `letsspeakup.onrender.com`. This repository started as a copy of it.
 - Improvements made here (6 players, scoring, 10-minute timer, reconnect fix,
   bigger cards) were contributed back and **merged** into the original in
   July 2026.
-- The **French version has not been contributed back yet.** It sits ready on the
-  branch `french-language-switch` in the fork
+- The **French version has not been contributed back yet.** A ready-made branch
+  called `french-language-switch` sits in the fork
   [`Helti2636/letsspeakup`](https://github.com/Helti2636/letsspeakup), based on
-  the original's current `main` and free of conflicts. If the team wants French
-  on the original link too, open a pull request from that branch to
-  `greg-afk/letsspeakup`. Otherwise the version in this repo is the one to use.
+  the original's current `main` and free of conflicts. If you want French on the
+  original link too, open a pull request from that branch to
+  `greg-afk/letsspeakup`.
+
+  Note that this fork belongs to the previous maintainer's personal account and
+  may disappear one day. That loses nothing: the French version itself lives in
+  this repository, so the same pull request can be rebuilt from here at any
+  time. Otherwise, simply keep using the version in this repository.
 
 ## Good to know
 
